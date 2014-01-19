@@ -36,7 +36,14 @@ for post in posts:
   else:
     title = 'untitled'
   filename = '_posts/%s-%s-%s-%s.md' % (date.tm_year, date.tm_mon, date.tm_mday, title)
+  front_matter = '\n'.join((
+    '---',
+    'layout: post',
+    'title: %s' % post.title,
+    'excerpt: %s' % post.summary,
+    '---'))
   f = codecs.open(filename, 'w', 'utf-8')
+  f.write(front_matter)
   f.write(post.content[0].value)
   f.close()
 
