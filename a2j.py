@@ -1,5 +1,6 @@
 import codecs
 import feedparser
+import html2text
 import re
 import unicodedata
 
@@ -11,13 +12,19 @@ def slugify(value):
     """
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    re.sub('[-\s]+', '-', value)
+    value = re.sub('[-\s]+', '-', value)
+    value = re.sub(' ', '_', value)
     return value
 
 
 d = feedparser.parse('input.xml')
 
 posts = []
+
+# disable line-wrapping on html2text output
+html2text.BODY_WIDTH = 0
+html2text.ESCAPE_SNOB = 1
+html2text.IGNORE_IMAGES = 1
 
 for entry in d.entries:
   try:
@@ -39,11 +46,14 @@ for post in posts:
   front_matter = '\n'.join((
     '---',
     'layout: post',
-    'title: %s' % post.title,
-    'excerpt: %s' % post.summary,
-    '---'))
+    'title: %s' % html2text.html2text(post.title),
+    '---\n'))
   f = codecs.open(filename, 'w', 'utf-8')
   f.write(front_matter)
-  f.write(post.content[0].value)
+
+  content = post.content[0].value
+  if "Helen" in content:
+    print content
+  f.write(html2text.html2text(content))
   f.close()
 
