@@ -1,0 +1,1 @@
+A simple script to convert an atom file to a set of files in a _post directory, for use by jekyll.
